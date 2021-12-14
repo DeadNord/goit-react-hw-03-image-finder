@@ -1,76 +1,48 @@
 import { Component } from 'react';
 
 // importComponent
-import Section from './components/phonebook/section/Section';
-import Form from './components/phonebook/form/Form';
-import Contacts from './components/phonebook/contacts/Contacts';
-import Filter from './components/phonebook/filter/Filter';
+import Section from './components/image-finder/section/Section';
+import Searchbar from './components/image-finder/searchbar/Searchbar';
+import ImageGallery from './components/image-finder/gallery/ImageGallery';
+import Modal from './components/image-finder/modal/Modal';
 
 // importScripts
-import { alert } from '@pnotify/core';
-import '@pnotify/core/dist/PNotify.css';
-import '@pnotify/core/dist/BrightTheme.css';
-import { nanoid } from 'nanoid';
 
 class App extends Component {
   state = {
-    contacts: [],
-    filter: '',
+    searchName: '',
+    showModal: false,
+    option: {},
   };
 
-  formSubmit = data => {
-    const contactData = this.state.contacts.find(elem =>
-      elem.name.includes(data.name),
-    );
-
-    if (contactData) {
-      const existUserAlert = alert({
-        title: 'Alert',
-        text: `${contactData.name} is already in contacts`,
-      });
-    } else {
-      const userId = { id: nanoid() };
-
-      this.setState(prevState => ({
-        contacts: [...prevState.contacts, { ...userId, ...data }],
-      }));
-    }
-  };
-
-  filterChange = e => {
-    const { name, value } = e.currentTarget;
-    this.setState({
-      [name]: value,
-    });
-  };
-
-  deleteContact = contactId => {
-    this.setState(prevState => ({
-      contacts: prevState.contacts.filter(contact => contact.id !== contactId),
+  toggleModal = (src, alt) => {
+    this.setState(({ showModal }) => ({
+      showModal: !showModal,
+      option: { imageSrc: src, imageAlt: alt },
     }));
   };
 
-  filterContacts = () => {
-    const normalizeFilter = this.state.filter.toLowerCase();
-    return this.state.contacts.filter(contact =>
-      contact.name.toLowerCase().includes(normalizeFilter),
-    );
+  handleFormSubmit = searchName => {
+    this.setState({ searchName });
   };
 
   render() {
-    const filterContact = this.filterContacts();
     return (
       <>
-        <Section title={'Phonebook'}>
-          <Form onSubmit={this.formSubmit} />
-        </Section>
-        <Section title={'Contacts'}>
-          <Filter value={this.state.filter} onChange={this.filterChange} />
-          <Contacts
-            contacts={filterContact}
-            deleteContact={this.deleteContact}
+        <Searchbar onSubmit={this.handleFormSubmit} />
+        <Section>
+          <ImageGallery
+            searchName={this.state.searchName}
+            onClick={this.toggleModal}
           />
         </Section>
+        {this.state.showModal && (
+          <Modal
+            src={this.state.option.imageSrc}
+            alt={this.state.option.imageAlt}
+            onClose={this.toggleModal}
+          />
+        )}
       </>
     );
   }
