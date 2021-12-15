@@ -2,9 +2,7 @@ import ImageGalleryItem from './ImageGalleryItem';
 import React, { PureComponent } from 'react';
 import Button from '../button/Button';
 import LoaderCom from '../loader/Loader';
-
-// import Loader from 'react-loader-spinner';
-// import "react-loader-spinner/dist/loader/css/react-spinner-loader.css";
+import fetchApi from '../../services/services'
 
 import s from './ImageGallery.module.css';
 
@@ -22,9 +20,8 @@ class ImageGallery extends PureComponent {
         prevProps.searchName !== this.props.searchName ||
         prevState.page !== this.state.page
       ) {
-        if (prevProps.searchName !== this.props.searchName)
           this.setState({ image: [], status: 'load' });
-        this.fetchApi(this.props.searchName, this.state.page)
+        fetchApi(this.props.searchName, this.state.page)
           .then(image => {
             image.hits[0] = { ...image.hits[0], myRef: this.state.myRef  };
             this.setState({
@@ -35,20 +32,6 @@ class ImageGallery extends PureComponent {
           })
       }
     }
-
-fetchApi(value, page) {
-    const BASE = 'https://pixabay.com/api/';
-    const KEY = '24007253-6cc56fa6c42aef75df557ae25';
-  const url =
-    BASE +
-    `?q=${value}&page=${page}&key=${KEY}&image_type=photo&orientation=horizontal&per_page=12`;
-  return fetch(url).then(res => {
-    if (res.ok) {
-      return res.json();
-    }
-    return Promise.reject(new Error(`Oops, something went wrong.`));
-  });
-}
 
     nextPage = () => {
       this.setState({
